@@ -121,7 +121,17 @@
                 }
             })
         });
-
+        $('.icon-tuichu').parent().click(function(e){
+            e.preventDefault();
+            $.post({
+                url:'http://localhost:8000/admin/logout',
+                success:function(res){
+                    if(res.code == 200){
+                        location.hreft = 'login.html';
+                    }
+                }
+            })
+        });
     </script>
 
 </body>
