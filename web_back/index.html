@@ -123,11 +123,12 @@
         });
         $('.icon-tuichu').parent().click(function(e){
             e.preventDefault();
+            // alert('点击了~');
             $.post({
                 url:'http://localhost:8000/admin/logout',
                 success:function(res){
                     if(res.code == 200){
-                        location.hreft = 'login.html';
+                        location.href = 'login.html';
                     }
                 }
             })
