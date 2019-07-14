@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="./js/bootstrap/js/bootstrap.min.js"></script>
 
 </head>
 
@@ -24,67 +25,124 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control username" id="inputEmail3" value="李思思">
+                        <input type="text" name="username" class="form-control username" value="李思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">昵称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control nikename" id="inputEmail3" value="思思">
+                        <input type="text" name="nickname" class="form-control nickname" value="思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control email" id="inputEmail3" value="lisisi@126.com">
+                        <input type="text" name="email" class="form-control email" value="lisisi@126.com">
                     </div>
                 </div>
+
 
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
                         <img src="images/2.jpg" alt="" class="user_pic">
-                        <input type="file" id="exampleInputFile">
+                        <input type="file" name="user_pic" id="exampleInputFile">
+                        <br>
+                        <!-- 美化上传按钮 -->
+                        <label for="exampleInputFile">
+                            <img src="./images/uploadFileIcon.png" alt="">
+                        </label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">密码：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control password" id="inputEmail3" value="12345678">
+                        <input type="password" name="password" class="form-control password" value="12345678">
                     </div>
                 </div>
 
 
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">修改</button>
+                        <button type="submit" class="btn btn-success btn-edit">修改</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    修改成功!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
 
-        $.get({
-            url: 'http://localhost:8000/admin/userinfo_get',
-            success: function (res) {
-                console.log(res);
-                if (res.code == 200) {
-                   /*  $('.username').val(res.data.username);
-                    $('.nickname').val(res.data.nickname);
-                    $('.email').val(res.data.email);
-                    $('.password').val(res.data.password); */
-                    for (var key in res.data) {
-                        $('.' + key).val(res.data[key]);
+        $(function () {
+            $('#exampleInputFile').change(function () {
+                var url = URL.createObjectURL(this.files[0]);
+                $('.user_pic').attr('src', url);
+            });
+
+            $.ajax({
+                url: 'http://localhost:8000/admin/userinfo_get',
+                success: function (res) {
+                    // console.log(res);
+                    if (res.code == 200) {
+                        for (var key in res.data) {
+                            $('.' + key).val(res.data[key]);
+                        }
+                        $('.user_pic').attr('src', res.data.user_pic);
                     }
-                    $('.user_pic').attr('src',res.data.user_pic);
                 }
-            }
-        });
-        $('#exampleInputFile').change(function () {
-            var url = URL.createObjectURL(this.files[0]);
-            $('.user_pic').attr('src', url);
+            });
+
+            $('.btn-edit').click(function (e) {
+                e.preventDefault();
+                var form = new FormData($('form')[0]);
+                $.post({
+                    url: 'http://localhost:8000/admin/userinfo_edit',
+                    data: form,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        console.log(res);
+                        if (res.code == 200) {
+                            $('#myModal').modal();
+                            $('.btn-primary').click(function () {
+                                // parent.location.reload();
+                                $.ajax({
+                                    url: 'http://localhost:8000/admin/getuser',
+                                    success: function (res) {
+                                        // console.log(res);
+                                        if (res.code == 200) {
+                                            parent.$('.user_info').children('span').html('欢迎&nbsp;&nbsp;' + res.data.nickname);
+                                            parent.$('.user_info').children('img').attr('src', res.data.user_pic);
+                                            parent.$('.user_center_link').children('img').attr('src', res.data.user_pic);
+                                        }
+                                    }
+                                })
+                                $('#myMobal').modal('hide');
+                            })
+                        }
+                    }
+                })
+            });
+
         });
     </script>
 </body>
