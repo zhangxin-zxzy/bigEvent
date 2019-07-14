@@ -95,7 +95,7 @@
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <input type="text" class="form-control" id="recipient-name1">
                         </div>
                     </form>
                 </div>
@@ -119,6 +119,17 @@
                 </td>
             </tr>
         {{/each}}
+    </script>
+    <script id="tpl2" type="text/html">
+        <tr>
+                <td>{{name}}</td>
+                <td>{{slug}}</td>
+                <td class="text-center">
+                    <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
+                        class="btn btn-info btn-xs">编辑</a>
+                    <a href="javascript:deleteTr(  );" class="btn btn-danger btn-xs">删除</a>
+                </td>
+            </tr>
     </script>
     <script>
         $('#addModal').modal({
@@ -147,14 +158,39 @@
 
 
         $(function () {
-            $.get({
-                url: 'http://localhost:8000/admin/category_search',
-                success: function (res) {
-                    if (res.code == 200) {
-                        var html = template('tpl', res);
-                        $('tbody').html(html);
+            function getData() {
+
+                $.get({
+                    url: 'http://localhost:8000/admin/category_search',
+                    success: function (res) {
+                        if (res.code == 200) {
+                            var html = template('tpl', res);
+                            $('tbody').html(html);
+                        }
                     }
-                }
+                });
+            }
+            getData();
+            $('#model_add').click(function () {
+                var name = $('#recipient-name').val().trim();
+                var nickname = $('#recipient-name1').val().trim();
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_add',
+                    data: { name: name, slug: nickname },
+                    success: function (res) {
+                        if (res.code == 200) {
+                            // getData();
+                            // console.log(res);
+                            var obj ={
+                                name:name,
+                                slug:nickname,
+                            }
+                            var reshtml = template('tpl2',obj);
+                            $('tbody').append(reshtml);
+                        }
+                    }
+                })
             })
         })
     </script>
