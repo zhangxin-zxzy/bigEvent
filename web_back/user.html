@@ -127,12 +127,27 @@
                                 // parent.location.reload();
                                 $.ajax({
                                     url: 'http://localhost:8000/admin/getuser',
-                                    success: function (res) {
+                                    success: function (backData) {
                                         // console.log(res);
-                                        if (res.code == 200) {
-                                            parent.$('.user_info').children('span').html('欢迎&nbsp;&nbsp;' + res.data.nickname);
-                                            parent.$('.user_info').children('img').attr('src', res.data.user_pic);
-                                            parent.$('.user_center_link').children('img').attr('src', res.data.user_pic);
+                                        if (backData.code == 200) {
+                                            //把对应的名字还有头像显示在对应的标签中.
+                                            parent.$('.user_info')
+                                                .children(
+                                                    'span').html(
+                                                        '欢迎&nbsp;&nbsp;' +
+                                                        backData.data
+                                                            .nickname);
+                                            parent.$('.user_info')
+                                                .children(
+                                                    'img').attr('src',
+                                                        backData.data
+                                                            .user_pic);
+
+                                            parent.$(
+                                                '.user_center_link')
+                                                .children('img').attr(
+                                                    'src', backData.data
+                                                        .user_pic);
                                         }
                                     }
                                 })
