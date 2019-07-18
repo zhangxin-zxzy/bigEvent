@@ -70,7 +70,7 @@
 
                         <td class="text-center">
                             <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
-                            <a href="javascript:deleteTr( 1005 );" class="btn btn-danger btn-xs">删除</a>
+                            <a href="javascript:deleteTr( 1005 );" class="btn btn-danger btn-xs btn-delete">删除</a>
                         </td>
                     </tr>
 
@@ -286,7 +286,7 @@
             <td class="text-center">{{v.state}}</td>
             <td class="text-center">
                 <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 1005 );" class="btn btn-danger btn-xs">删除</a>
+                <a href="#" data-id='{{v.id}}' class="btn btn-danger btn-xs btn-delete">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -341,21 +341,23 @@
                         if (res.code == 200) {
                             var list = template('tpl3', res);
                             $('tbody').html(list);
+                            console.log(res);
 
                             //因为总页数在发送ajax成功后才能获取
                             //所以这儿重绘页码条的代码需要写在发送请求成功之后的success回调函数里面
                             var totalPages = res.totalPage; //获取真实的总页码数.
-                            console.log(totalPages);
+                            // console.log(totalPages);
+                            window.currentPage = $pagination.twbsPagination('getCurrentPage'); //获取当前页
                             if (mytotalpage != totalPages) {  //如果新的页码数不等于当前页码数就要重绘
                                 // console.log(newtotalPages);
                                 mytotalpage = totalPages;
+                                $('.page-item').eq(2).addClass('active').siblings().removeClass('active');
                                 // console.log(newtotalPages);
-                                var currentPage = $pagination.twbsPagination('getCurrentPage');
                                 //有一个问题,就是分页插件调用destroy方法的时候,会自动的去调用onPageClick事件.所以就无限循环了.
                                 $pagination.twbsPagination('destroy');
                                 $pagination.twbsPagination($.extend({}, defaultOpts, {
                                     startPage: 1,
-                                    totalPages: totalPages
+                                    totalPages: totalPages,
                                 }));
                             }
                         }
@@ -365,16 +367,11 @@
             //点击筛选显示符合条件的内容
             $('#btnSearch').click(function (e) {
                 e.preventDefault();
-                getData(1);
+                getData(currentPage);
             });
-
-
             //一进到页面就触发筛选的点击事件,把内容渲染到界面上
             // $('#btnSearch').trigger('click');
             //调用jQuery的页码插件
-
-
-
 
             /*             $('.pagination').twbsPagination({
                             totalPages: 35,  //最大的页签数
@@ -388,6 +385,23 @@
                                 getData(page);
                             }
                         }); */
+            $('tbody').on('click', '.btn-delete', function () {
+                if (confirm('请问你确定要删除吗?')) {
+
+                    var id = $(this).attr('data-id');
+                    var that = $(this);
+                    $.ajax({
+                        url: 'http://localhost:8000/admin/article_delete',
+                        data: { id: id },
+                        success: function (res) {
+                            if (res.code == 200) {
+                                // that.parents('tr').remove();
+                                getData(currentPage);
+                            }
+                        }
+                    })
+                }
+            })
         });
     </script>
 </body>
